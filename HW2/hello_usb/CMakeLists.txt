@@ -44,7 +44,7 @@ if (TARGET tinyusb_device)
     target_link_libraries(hello_usb pico_stdlib)
 
     # enable usb output, disable uart output
-    pico_enable_stdio_usb(hello_usb 1)
+    pico_enable_stdio_usb(hello_usb 1) # important
     pico_enable_stdio_uart(hello_usb 0)
 
     # create map/bin/hex/uf2 file etc.
