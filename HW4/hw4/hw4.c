@@ -82,7 +82,7 @@ int main()
 
 
 
-            // wait for 1000/1/sample_rate ms, f = 2hz
+            // wait for 1000/1/sample_rate ms, f = 1hz
             sleep_ms(1000/1/sample_rate);
             count++;
             if(count == sample_rate){count = 0;}
