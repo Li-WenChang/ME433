@@ -91,7 +91,6 @@ int main()
                 if(elapsed_us >= 1000000/frequency/100){break;}
             }
             
-
             count++;
             if(count == sample_rate){count = 0;}
 
