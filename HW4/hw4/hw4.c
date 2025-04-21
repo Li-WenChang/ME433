@@ -42,7 +42,7 @@ int main()
     stdio_init_all();
 
     // Enable SPI 0 at 1 MHz and connect to GPIOs
-    spi_init(spi_default, 1000 ); // the baud, or bits per second
+    spi_init(spi_default, 1000*1000 ); // the baud, or bits per second
     gpio_set_function(PICO_DEFAULT_SPI_RX_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_SCK_PIN, GPIO_FUNC_SPI);
     gpio_set_function(PICO_DEFAULT_SPI_TX_PIN, GPIO_FUNC_SPI);
@@ -54,13 +54,15 @@ int main()
     
     const float* t_arr = triangle_wave();  // cached triangle wave
     const float* s_arr = sine_wave();      // cached sine wave
-    int wave = 0;
+    int wave = 1;
     int count = 0;
 
     
     if(wave == 0){
         while(true){
-            
+            absolute_time_t start = get_absolute_time();
+
+
             uint digital = (uint)((t_arr[count] / 3.3f) * 1023);
             printf("Voltage: %.2fV, D: %d\r\n", t_arr[count], digital);
 
@@ -81,9 +83,15 @@ int main()
             cs_deselect(PICO_DEFAULT_SPI_CSN_PIN);
 
 
+            // wait for 1000000/1/sample_rate us, f = 1hz
+            int frequency = 1;
+            while(true){
+                absolute_time_t end = get_absolute_time();
+                int64_t elapsed_us = absolute_time_diff_us(start, end);
+                if(elapsed_us >= 1000000/frequency/100){break;}
+            }
+            
 
-            // wait for 1000/1/sample_rate ms, f = 2hz
-            sleep_ms(1000/1/sample_rate);
             count++;
             if(count == sample_rate){count = 0;}
 
@@ -92,6 +100,7 @@ int main()
     if(wave == 1){
         while(true){
             uint digital = (uint)((s_arr[count] / 3.3f) * 1023);
+            absolute_time_t start = get_absolute_time();
 
             // Construct 16-bit command
             uint16_t command = 0;
@@ -112,7 +121,16 @@ int main()
 
 
             // wait for 1000/2/sample_rate ms, f = 2hz
-            sleep_ms(1000/2/sample_rate);
+            // sleep_ms(1000/2/sample_rate);
+
+            // wait for 1000000/2/sample_rate us, f = 2hz
+            int frequency = 2;
+            while(true){
+                absolute_time_t end = get_absolute_time();
+                int64_t elapsed_us = absolute_time_diff_us(start, end);
+                if(elapsed_us >= 1000000/frequency/100){break;}
+            }
+            
             
             count++;
             if(count == sample_rate){count = 0;}
